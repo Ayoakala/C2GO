@@ -20,7 +20,7 @@ def api_testqr():
     with open('qr.png', 'rb') as f:
         data = f.read()
     os.remove('qr.png')
-    return base64.b64encode(data)
+    return jsonify({'QR': base64.b64encode(data).decode()})
     # return send_file(io.BytesIO(data), mimetype='image/png')
 
 
@@ -62,7 +62,7 @@ def api_qr():
     with open('qr.png', 'rb') as f:
         data = f.read()
     os.remove('qr.png')
-    return base64.b64encode(data)
+    return jsonify({'QR': base64.b64encode(data).decode()})
     # return send_file(io.BytesIO(data), mimetype='image/png')
 
 
