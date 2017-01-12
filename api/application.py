@@ -1,6 +1,7 @@
 import os
 import io
 import json
+import base64
 from semantic.numbers import NumberService
 import pyqrcode as QR
 import speech_recognition as SR
@@ -19,7 +20,8 @@ def api_testqr():
     with open('qr.png', 'rb') as f:
         data = f.read()
     os.remove('qr.png')
-    return send_file(io.BytesIO(data), mimetype='image/png')
+    return base64.b64encode(data)
+    # return send_file(io.BytesIO(data), mimetype='image/png')
 
 
 @application.route('/api/qr', methods=['POST'])
@@ -51,10 +53,17 @@ def api_qr():
 
     # TODO add more engines and take an average string
 
-    print(results[0])
-    print(_extract_amount(results[0]))
+    print('Original query: ', results[0])
+    amt = str(_extract_amount(results[0]))
+    uid = request.files['uid'].read().decode()
+    print('Returning encoded QR code: ', amt, uid)
 
-    return 'qr code'
+    QR.create(' '.join((amt, uid))).png('qr.png', scale=8)
+    with open('qr.png', 'rb') as f:
+        data = f.read()
+    os.remove('qr.png')
+    return base64.b64encode(data)
+    # return send_file(io.BytesIO(data), mimetype='image/png')
 
 
 @application.route('/api/verify', methods=['POST'])
