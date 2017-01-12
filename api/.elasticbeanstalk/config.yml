@@ -1,9 +1,9 @@
 branch-defaults:
   default:
-    environment: jared-api-dev
+    environment: c2go-api-dev
     group_suffix: null
 global:
-  application_name: jared-api
+  application_name: c2go-api
   branch: null
   default_ec2_keyname: null
   default_platform: Python 3.4
