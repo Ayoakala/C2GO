@@ -3,6 +3,7 @@ import io
 import json
 import base64
 import requests
+import datetime
 from semantic.numbers import NumberService
 import pyqrcode as QR
 import speech_recognition as SR
@@ -71,14 +72,15 @@ def api_verify():
     r = requests.get(url)
     if r.status_code == 200:
         account = r.json()
-        return 'nessie withdraw TODO'
-        '''
-        account['balance'] = account['balance'] - int(amt)
-        print(url)
-        r = requests.put(url, data=json.dumps(account))
-        print(r.text)
-        return 'ok'
-        '''
+        url = "http://api.reimaginebanking.com/accounts/{}/withdrawals?key={}".format(account['_id'], nkey)
+        payload = {
+          "medium": "balance",
+          "transaction_date": str(datetime.date.today()),
+          "amount": int(amt),
+          "description": "dank memes"
+        }
+        r = requests.post(url, json=payload)
+        return jsonify(r.json())
     else:
         return 'ERROR: ' + r.json()['message']
 
