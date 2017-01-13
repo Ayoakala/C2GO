@@ -1,4 +1,5 @@
 click==6.7
+requests==2.12.4
 Flask==0.12
 pypng==0.0.18
 itsdangerous==0.24

@@ -2,6 +2,7 @@ import os
 import io
 import json
 import base64
+import requests
 from semantic.numbers import NumberService
 import pyqrcode as QR
 import speech_recognition as SR
@@ -12,23 +13,11 @@ application = Flask(__name__)
 def index():
     return "o shit whaddup"
 
-
-@application.route('/api/testqr', methods=['GET'])
-def api_testqr():
-    args = request.args
-    QR.create('hello jared').png('qr.png', scale=8)
-    with open('qr.png', 'rb') as f:
-        data = f.read()
-    os.remove('qr.png')
-    return jsonify({'QR': base64.b64encode(data).decode()})
-    # return send_file(io.BytesIO(data), mimetype='image/png')
-
-
-@application.route('/api/qr', methods=['POST'])
-def api_qr():
+@application.route('/api/parseaudio', methods=['POST'])
+def api_parseaudio():
     r_engine = SR.Recognizer()
-    with SR.AudioFile(request.files['recording']) as src:
-        audio = r_engine.record(src)
+    with SR.AudioFile(request.files['recording']) as f:
+        audio = r_engine.record(f)
 
     results = []
 
@@ -54,11 +43,17 @@ def api_qr():
     # TODO add more engines and take an average string
 
     print('Original query: ', results[0])
-    amt = str(_extract_amount(results[0]))
-    uid = request.files['uid'].read().decode()
-    print('Returning encoded QR code: ', amt, uid)
+    return jsonify({'amount': _extract_amount(results[0])})
 
-    QR.create(' '.join((amt, uid))).png('qr.png', scale=8)
+
+@application.route('/api/qr', methods=['POST'])
+def api_qr():
+    data = request.get_json()
+    print(data)
+    amt, aid = data['amount'], data['aid']
+    print('Returning encoded QR code for', amt, aid)
+
+    QR.create(' '.join((amt, aid))).png('qr.png', scale=24)
     with open('qr.png', 'rb') as f:
         data = f.read()
     os.remove('qr.png')
@@ -68,8 +63,24 @@ def api_qr():
 
 @application.route('/api/verify', methods=['POST'])
 def api_verify():
-    data = request.get_json()
-    return 'verify'
+    data = request.get_json()['data'].strip()
+    amt, account_id = data.split()
+    with open('nessie_credentials.txt', 'r') as f:
+        nkey = f.read().strip()
+    url = "http://api.reimaginebanking.com/accounts/{}?key={}".format(account_id, nkey)
+    r = requests.get(url)
+    if r.status_code == 200:
+        account = r.json()
+        return 'nessie withdraw TODO'
+        '''
+        account['balance'] = account['balance'] - int(amt)
+        print(url)
+        r = requests.put(url, data=json.dumps(account))
+        print(r.text)
+        return 'ok'
+        '''
+    else:
+        return 'ERROR: ' + r.json()['message']
 
 
 def _extract_amount(query):
