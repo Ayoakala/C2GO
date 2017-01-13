@@ -6,3 +6,4 @@ Hackathon @ Capital One SWE Winter Summit 2017!
 `./ATM` contains a webcam QR scanner and an Arduino file that make up the supporting software for our custom-built hardware ATM.
 
 `./capitalToGo` contains the source for the android app.
+
