@@ -10,9 +10,6 @@ import speech_recognition as SR
 from flask import Flask, request, jsonify, send_file
 application = Flask(__name__)
 
-@application.route('/')
-def index():
-    return "o shit whaddup"
 
 @application.route('/api/parseaudio', methods=['POST'])
 def api_parseaudio():
@@ -25,15 +22,6 @@ def api_parseaudio():
     with open('wit_credentials.txt', 'r') as f:
         wit_key = f.read().strip()
 
-    '''
-    try:
-        results.append(r_engine.recognize_google_cloud(audio, credentials_json='gcs_credentials.json'))
-    except SR.UnknownValueError:
-        results.append("Google Cloud Speech could not understand audio")
-    except SR.RequestError as e:
-        results.append("Could not request results from Google Cloud Speech service; {0}".format(e))
-    '''
-
     try:
         results.append(r_engine.recognize_wit(audio, key=wit_key))
     except SR.UnknownValueError:
@@ -41,7 +29,8 @@ def api_parseaudio():
     except SR.RequestError as e:
         results.append("Could not request results from Wit.ai service; {0}".format(e))
 
-    # TODO add more engines and take an average string
+    # Was going to add more engines and take a string average for increased accuracy,
+    # ran out of time.
 
     print('Original query: ', results[0])
     return jsonify({'amount': _extract_amount(results[0])})
