@@ -3,7 +3,6 @@ api_tester.py
 gcs_credentials.json
 wit_credentials.txt
 nessie_credentials.txt
-test*.wav
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
